@@ -36,19 +36,39 @@ with open("//home//nvidia//workspace//nicholasnapolitano//data//Replay_Memory3.c
 
 batch_size = int(0.1*len(replay_memory))
 
-state = loadtxt('//home//nvidia//workspace//nicholasnapolitano//data//prev_board_state.csv', delimiter=',')
+state = loadtxt('D:\\TESI\\jelly-win32-3.17_JELLYPLAYER\\Resources\\brains\\prev_board_state.csv', delimiter=',')
+print(state)
+state = state.tolist()
+target = state.pop()
+loop = 81 - len(state)
+for i in range(loop):
+    state.append(0)
+state.append(target)
+state = np.array(state)
 state = state.reshape(-1, 82)
+print(state)
+#print(state)
 elem.append(state)
+#state = to_categorical([state], 7)
     
 elem.append(mossa)
 
-reward = int(loadtxt('//home//nvidia//workspace//nicholasnapolitano//data//reward.txt'))
+reward = int(loadtxt('D:\\TESI\\jelly-win32-3.17_JELLYPLAYER\\Resources\\data\\reward.txt'))
 
 elem.append(reward)
 
-next_state = loadtxt('//home//nvidia//workspace//nicholasnapolitano//data//board_state.csv', delimiter=',')
+next_state = loadtxt('D:\\TESI\\jelly-win32-3.17_JELLYPLAYER\\Resources\\brains\\board_state.csv', delimiter=',')
+#print(next_state)
+next_state = next_state.tolist()
+next_target = next_state.pop()
+next_loop = 81 - len(next_state)
+for i in range(next_loop):
+    next_state.append(0)
+next_state.append(next_target)
+next_state = np.array(next_state)
 next_state = next_state.reshape(-1, 82)
 elem.append(next_state)
+
 index = mossa
 
 mossa = to_categorical([mossa], 324)
