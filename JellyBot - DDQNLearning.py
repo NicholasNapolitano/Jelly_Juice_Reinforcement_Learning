@@ -11,6 +11,7 @@ from tensorflow.keras import backend as K
 import tensorflow as tf
 import os
 
+#Utile per ridurre il carico sulla CPU
 NUM_PARALLEL_EXEC_UNITS = 16
 config = tf.compat.v1.ConfigProto(intra_op_parallelism_threads=NUM_PARALLEL_EXEC_UNITS, inter_op_parallelism_threads=2,
                        allow_soft_placement=True, device_count={'CPU': NUM_PARALLEL_EXEC_UNITS})
@@ -22,22 +23,22 @@ os.environ["KMP_AFFINITY"] = "granularity=fine,verbose,compact,1,0"
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
-validMoves = loadtxt('//home//nvidia//workspace//nicholasnapolitano//data//validMoves.txt')
-mossa = int(loadtxt('//home//nvidia//workspace//nicholasnapolitano//data//prevOutput.txt'))
+validMoves = loadtxt('validMoves.txt')
+mossa = int(loadtxt('prevOutput.txt'))
 gamma = 0.95
 
 elem = []
 
-model = load_model("//home//nvidia//workspace//nicholasnapolitano//data//MainModel.h5")
-target_model = load_model("//home//nvidia//workspace//nicholasnapolitano//data//DuelingModel.h5")
+model = load_model("MainModel.h5")
+target_model = load_model("DuelingModel.h5")
 
-with open("//home//nvidia//workspace//nicholasnapolitano//data//Replay_Memory3.csv", "rb") as fp:   # Unpickling
+with open("Replay_Memory.csv", "rb") as fp:   # Unpickling
      replay_memory = pickle.load(fp)
 
 batch_size = int(0.1*len(replay_memory))
 
-state = loadtxt('D:\\TESI\\jelly-win32-3.17_JELLYPLAYER\\Resources\\brains\\prev_board_state.csv', delimiter=',')
-print(state)
+state = loadtxt('prev_board_state.csv', delimiter=',')
+
 state = state.tolist()
 target = state.pop()
 loop = 81 - len(state)
@@ -47,18 +48,17 @@ state.append(target)
 state = np.array(state)
 state = state.reshape(-1, 82)
 print(state)
-#print(state)
+
 elem.append(state)
-#state = to_categorical([state], 7)
-    
+ 
 elem.append(mossa)
 
-reward = int(loadtxt('D:\\TESI\\jelly-win32-3.17_JELLYPLAYER\\Resources\\data\\reward.txt'))
+reward = int(loadtxt("reward.txt'))
 
 elem.append(reward)
 
-next_state = loadtxt('D:\\TESI\\jelly-win32-3.17_JELLYPLAYER\\Resources\\brains\\board_state.csv', delimiter=',')
-#print(next_state)
+next_state = loadtxt('board_state.csv', delimiter=',')
+                     
 next_state = next_state.tolist()
 next_target = next_state.pop()
 next_loop = 81 - len(next_state)
@@ -67,6 +67,7 @@ for i in range(next_loop):
 next_state.append(next_target)
 next_state = np.array(next_state)
 next_state = next_state.reshape(-1, 82)
+                     
 elem.append(next_state)
 
 index = mossa
@@ -74,7 +75,7 @@ index = mossa
 mossa = to_categorical([mossa], 324)
 
 listOfLines = list()        
-with open ("//home//nvidia//workspace//nicholasnapolitano//data//possibleMoves.txt", "r") as myfile:
+with open ("possibleMoves.txt", "r") as myfile:
     for line in myfile:
         listOfLines.append(line.strip())
 
@@ -114,7 +115,7 @@ for k in range(324):
         index = to_categorical([index], 324)
         for i in range(len(index[0])):
             index[0][i] = -1
-        model.fit(next_state, index, epochs=30, verbose=1) 
+        model.fit(next_state, index, epochs=50, verbose=1) 
     
 act_values = model.predict(next_state)[0]
 
@@ -135,9 +136,9 @@ action = np.random.choice(listOfLines, p=act_pr)
 
 print(action)
 
-model.save("//home//nvidia//workspace//nicholasnapolitano//data//MainModel.h5")
+model.save("MainModel.h5")
 
-with open("//home//nvidia//workspace//nicholasnapolitano//data//Replay_Memory.csv", "wb") as fp:   #Pickling
+with open("Replay_Memory.csv", "wb") as fp:   #Pickling
     pickle.dump(replay_memory, fp)
 
 with open("//home//nvidia//workspace//nicholasnapolitano//data//output.txt", 'w') as f:
