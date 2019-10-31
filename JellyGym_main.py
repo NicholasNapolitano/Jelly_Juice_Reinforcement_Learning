@@ -11,17 +11,26 @@ from tensorflow.keras import backend as K
 import tensorflow as tf
 import os
 
-#Utile per ridurre il carico sulla CPU
-NUM_PARALLEL_EXEC_UNITS = 16
-config = tf.compat.v1.ConfigProto(intra_op_parallelism_threads=NUM_PARALLEL_EXEC_UNITS, inter_op_parallelism_threads=2,
-                       allow_soft_placement=True, device_count={'CPU': NUM_PARALLEL_EXEC_UNITS})
-session = tf.compat.v1.Session(config=config)
-os.environ["OMP_NUM_THREADS"] = "16"
+#Utile per ottimizzare il carico di lavoro sulla CPU
+os.environ["OMP_NUM_THREADS"] = "2"
 os.environ["KMP_BLOCKTIME"] = "30"
 os.environ["KMP_SETTINGS"] = "1"
 os.environ["KMP_AFFINITY"] = "granularity=fine,verbose,compact,1,0"
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+#Utilizzo della GPU
+os.environ["CUDA_VISIBLE_DEVICES"]="0" 
+
+import tensorflow as tf
+
+#Utile per ottimizzare il carico di lavoro sulla CPU
+NUM_PARALLEL_EXEC_UNITS = 2
+config = tf.compat.v1.ConfigProto(intra_op_parallelism_threads=NUM_PARALLEL_EXEC_UNITS, inter_op_parallelism_threads=2,
+                       allow_soft_placement=True, device_count={'CPU': 2, 'GPU': 1})
+
+#Utile per ottimizzare il carico di lavoro sulla GPU
+config.gpu_options.allow_growth = True
+config.gpu_options.per_process_gpu_memory_fraction = 1.0
+session = tf.compat.v1.Session(config=config)
 
 validMoves = loadtxt('validMoves.txt')
 mossa = int(loadtxt('prevOutput.txt'))
