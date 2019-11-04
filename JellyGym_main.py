@@ -89,7 +89,7 @@ with open ("possibleMoves.txt", "r") as myfile:
         listOfLines.append(line.strip())
 
 #Phase 1: Instant Learning
-if(reward >= 0.1):
+if(reward >= 1):
     for i in range(len(mossa[0])):
         mossa[0][i] = -1
     mossa[0][index] = reward
@@ -106,7 +106,7 @@ else:
     mossa[0][index] = reward
     model.fit(state, mossa, epochs=1000, verbose=1)
 
-#Phase 2: Previous Success Cases Learning
+#Phase 2: Replay Memory Learning
 if len(replay_memory) > batch_size:
     minibatch = random.sample(replay_memory, batch_size)
     for state, action, reward, next_state in minibatch:
@@ -144,7 +144,7 @@ somma = 0
 for i in range(len(act_pr)):
     somma += act_pr[i]
 
-#Phase 6: Prediction
+#Phase 6: Next Move Prediction
 action = np.random.choice(listOfLines, p=act_pr)
 
 print(action)
