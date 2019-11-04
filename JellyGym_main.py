@@ -110,7 +110,6 @@ else:
 if len(replay_memory) > batch_size:
     minibatch = random.sample(replay_memory, batch_size)
     for state, action, reward, next_state in minibatch:
-        time.sleep(0.1)
         target = model.predict(state)
         t = target_model.predict(next_state)[0]
         target[0][action] = reward*(1-0.01*validMoves) + gamma * np.amax(t) #Bellman Equation
