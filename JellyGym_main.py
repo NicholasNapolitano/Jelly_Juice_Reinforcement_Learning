@@ -115,8 +115,6 @@ if len(replay_memory) > batch_size:
         t = target_model.predict(next_state)[0]
         target[0][action] = reward*(1-0.01*validMoves) + gamma * np.amax(t) #Bellman Equation
         model.fit(state, target, epochs=100, verbose=1)
-      
-act_prob = []
 
 #Phase 3: Unfeasable Moves Penalization
 for k in range(324):
@@ -128,15 +126,17 @@ for k in range(324):
         model.fit(next_state, index, epochs=50, verbose=1) 
 
 #Phase 4: Probability Calculation
+act_prob = []
+                     
 act_values = model.predict(next_state)[0]
 
 for k in range(len(listOfLines)):
     index = int(listOfLines[k])
     act_prob.append(act_values[index])
 
-act_pr = []
-
 #Phase 5: Probability Distribution Normalization
+act_pr = []
+                     
 for i in range(len(act_prob)):
     act_pr.append(act_prob[i]/sum(act_prob))
 
